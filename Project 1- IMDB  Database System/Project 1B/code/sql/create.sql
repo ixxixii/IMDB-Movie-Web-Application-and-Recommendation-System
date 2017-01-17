@@ -1,0 +1,131 @@
+DROP TABLE IF EXISTS MovieGenre;
+DROP TABLE IF EXISTS MovieDirector;
+DROP TABLE IF EXISTS MovieActor;
+DROP TABLE IF EXISTS Review;
+DROP TABLE IF EXISTS MaxPersonID;
+DROP TABLE IF EXISTS MaxMovieID;
+DROP TABLE IF EXISTS MovieRating;
+DROP TABLE IF EXISTS Sale;
+DROP TABLE IF EXISTS Movie;
+DROP TABLE IF EXISTS Actor;
+DROP TABLE IF EXISTS Director;
+
+
+CREATE TABLE Movie (
+	id INT,
+	title VARCHAR(100) NOT NULL,
+	year INT NOT NULL,
+	rating VARCHAR(10),
+	company VARCHAR(50) NOT NULL,
+	CHECK(id >= 0),
+	CHECK(year > 0),
+	CHECK( rating IN ('G','PG','PG-13','R','NC-17','NR') ),
+	PRIMARY KEY(id)
+)ENGINE = INNODB;
+
+
+CREATE TABLE Actor (
+	id INT,
+	last VARCHAR(20) NOT NULL,
+	first VARCHAR(20) NOT NULL,
+	sex VARCHAR(6) NOT NULL,
+	dob DATE NOT NULL,
+	dod DATE,
+	PRIMARY KEY(id),
+	CHECK(id >= 0 AND id <= MaxPersonID(id) ),
+	CHECK(sex = 'Male' OR sex = 'Female' OR sex = 'Other')
+)ENGINE = INNODB;
+
+
+CREATE TABLE Sale (
+	mid INT,
+	ticketsSold INT NOT NULL,
+	totalIncome INT NOT NULL,
+	CHECK(mid >= 0),
+	CHECK(ticketsSold >= 0),
+	CHECK(totalIncome >= 0),	
+	PRIMARY KEY(mid),
+	FOREIGN KEY (mid) REFERENCES Movie(id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE
+)ENGINE = INNODB;
+
+
+CREATE TABLE Director (
+	id INT,
+	last VARCHAR(20) NOT NULL,
+	first VARCHAR(20) NOT NULL,
+	dob DATE NOT NULL,
+	dod DATE,
+	PRIMARY KEY(id),
+	CHECK( id >= 0 AND id <= MaxPersonID(id) )
+)ENGINE = INNODB;
+
+
+CREATE TABLE MovieGenre (
+	mid INT,
+	genre VARCHAR(20) NOT NULL,
+	FOREIGN KEY (mid) REFERENCES Movie(id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE	
+)ENGINE = INNODB;
+
+
+CREATE TABLE MovieDirector (
+	mid INT NOT NULL,
+	did INT NOT NULL,
+	FOREIGN KEY (mid) REFERENCES Movie(id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE,	
+    FOREIGN KEY (did) REFERENCES Director(id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE    
+)ENGINE = INNODB;
+
+
+CREATE TABLE MovieActor (
+	mid INT,
+	aid INT,
+	role VARCHAR(50) NOT NULL,
+    FOREIGN KEY (mid) REFERENCES Movie(id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE,
+    FOREIGN KEY (aid) REFERENCES Actor(id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE
+)ENGINE = INNODB;
+
+
+CREATE TABLE MovieRating (
+	mid INT,
+	imdb INT,
+	rot INT,
+	CHECK (imdb >= 0 AND  imdb <= 100),
+	CHECK (rot > 0 AND  rot <= 100),
+	PRIMARY KEY(mid),
+	FOREIGN KEY (mid) REFERENCES Movie(id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE
+)ENGINE = INNODB;
+
+
+CREATE TABLE Review (
+	name VARCHAR(20) NOT NULL,
+	time TIMESTAMP NOT NULL,
+	mid INT,
+	rating INT,
+	comment VARCHAR(500),
+	FOREIGN KEY (mid) REFERENCES Movie(id)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE	
+)ENGINE = INNODB;
+
+
+CREATE TABLE MaxPersonID (
+	id INT,
+	PRIMARY KEY(id)
+)ENGINE = INNODB;
+CREATE TABLE MaxMovieID (
+	id INT,
+	PRIMARY KEY(id)
+)ENGINE = INNODB;
